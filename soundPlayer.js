@@ -42,9 +42,9 @@ soundEvent.on('startSound', (isLoop, sounds) => {
 })
 
 soundEvent.on('stopAllSounds', () => {
-    for (let lPlayer in activePlayers) {
+    activePlayers.forEach((lPlayer) => {
         clearInterval(lPlayer)
-    }
+    })
 })
 
 exports.event = soundEvent
