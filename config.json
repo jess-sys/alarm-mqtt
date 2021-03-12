@@ -1,0 +1,8 @@
+{
+ "prefix": "iot/office_alarm/",
+ "topics": {
+  "doorbell": "./assets/doorbell.mp3",
+  "garage": "./assets/doorbell.mp3",
+  "submarine": "./assets/doorbell.mp3"
+ }
+}
