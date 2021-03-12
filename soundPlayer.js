@@ -31,6 +31,10 @@ soundEvent.on('startSound', (isLoop, sounds) => {
                 })
             }, 3000)
             activePlayers.push(lPlayer)
+        } else {
+            player.play(sounds.sound, function(err){
+                if (err) throw err
+            })
         }
     } catch (e) {
         console.info(`[${chalk.red('SOUND')}] Issue with audio library ${e}`)
