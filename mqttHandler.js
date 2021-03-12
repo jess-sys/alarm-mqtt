@@ -1,9 +1,8 @@
-let mqtt = require('mqtt')
-const chalk = require('chalk');
+const chalk = require('chalk')
 
-let client = mqtt.connect('mqtt://' + process.env.MQTT_BROKER)
+const soundPlayer = require('./soundPlayer')
 
-function updateSubscriptions(config, backup) {
+function updateSubscriptions(client, config, backup) {
     let topics = []
     let topics_backup = []
 
@@ -38,4 +37,36 @@ function updateSubscriptions(config, backup) {
     }
 }
 
+function onMessage(topic, message) {
+    let alarmObject = {
+        "is_loop": false,
+        "topic": topic,
+        "severity": "classic",
+        "status": "cleared",
+        "sounds": {}
+    }
+    try {
+        topic = topic.slice(global.config.prefix.length)
+        if (!Object.keys(global.config['topics']).includes(topic)) {
+            console.log(`[${chalk.yellow('ALARM')}] ${chalk.underline(topic)} : Received poorly formatted alarm message, ignoring`)
+            return
+        }
+        message = JSON.parse(message)
+        if (message.hasOwnProperty('severity') && message.hasOwnProperty('status')) {
+            alarmObject.severity = ['classic', 'moderate', 'high', 'critical'].includes(message.severity) ? message.severity : 'classic'
+            alarmObject.status = ['ongoing', 'cleared'].includes(message.status) ? message.status : 'cleared'
+            alarmObject.is_loop = topic.includes('long/')
+            alarmObject.sounds = global.config['topics'][topic][alarmObject.severity]
+            soundPlayer.event.emit('newAlarmMessage', alarmObject)
+            console.log(`[${chalk.blue('ALARM')}] ${chalk.underline(topic)} : Received valid alarm message (${alarmObject.status})`)
+        } else {
+            console.log(`[${chalk.yellow('ALARM')}] ${chalk.underline(topic)} : Received poorly formatted alarm message, ignoring`)
+        }
+    } catch (e) {
+        console.log(`[${chalk.magenta('ALARM')}] ${chalk.underline(topic)} : Received poorly formatted alarm message, ignoring`)
+        console.log(e)
+    }
+}
+
 exports.updateSubscriptions = updateSubscriptions
+exports.onMessage = onMessage

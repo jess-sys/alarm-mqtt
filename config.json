@@ -1,8 +1,41 @@
 {
- "prefix": "iot/office_alarm/",
+ "prefix": "office_alarm/",
  "topics": {
-  "doorbell": "./assets/doorbell.mp3",
-  "garage": "./assets/doorbell.mp3",
-  "submarine": "./assets/doorbell.mp3"
+  "single/doorbell": {
+   "classic": {
+    "sound": "./assets/doorbell.mp3",
+    "voice": null
+   }
+  },
+  "long/intrusion": {
+   "moderate": {
+    "sound": "./assets/moderate_siren.mp3",
+    "voice": "./assets/voices/intrusion.mp3"
+   },
+   "critical": {
+    "sound": "./assets/critical_siren.mp3",
+    "voice": "./assets/voices/intrusion.mp3"
+   }
+  },
+  "long/air_quality": {
+   "moderate": {
+    "sound": "./assets/moderate.mp3",
+    "voice": null
+   },
+   "high": {
+    "sound": "./assets/high.mp3",
+    "voice": "./assets/voices/air_quality_high.mp3"
+   },
+   "critical": {
+    "sound": "./assets/critical.mp3",
+    "voice": "./assets/voices/air_quality_critical.mp3"
+   }
+  },
+  "long/smoke": {
+   "classic": {
+    "sound": "./assets/smokeddd.mp3",
+    "voice": "./assets/voices/smokedddaa.mp3"
+   }
+  }
  }
 }

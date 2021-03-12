@@ -1,38 +1,43 @@
 const events = require('events')
-const chalk = require('chalk');
-const fs = require('fs');
+const chalk = require('chalk')
+let mqtt = require('mqtt')
+const fs = require('fs')
+
 const mqttHandler = require('./mqttHandler')
 
 const configEvent = new events.EventEmitter()
 let config = {}
 let backup_config = {}
 
+global.config = config
+
 configEvent.on('configChange', () => {
     fs.readFile('./config.json', 'utf8', (err, content) => {
         try {
             backup_config = config
             config = JSON.parse(content)
-            console.info(`[${chalk.yellow('CORE')}] Configuration file loaded`)
-            mqttHandler.updateSubscriptions(config, backup_config)
+            global.config = config
+            console.info(`[${chalk.green('CORE')}] Configuration file loaded`)
+            mqttHandler.updateSubscriptions(client, config, backup_config)
         } catch (e) {
             console.info(`[${chalk.red('CORE')}] Cannot parse configuration file`)
         }
     })
 })
 
-configEvent.on('start', (content) => {
-    configEvent.emit('configChange')
+configEvent.on('start', (client) => {
+    configEvent.emit('configChange', client)
 })
 
 fs.watchFile('./config.json', (curr, prev) => {
-    configEvent.emit('configChange')
+    configEvent.emit('configChange', client)
 });
 
-configEvent.emit('start')
+let client = mqtt.connect('mqtt://' + process.env.MQTT_BROKER)
 
-/*let player = require('play-sound')(opts = {
-    'player': 'mpg123'
+client.on('connect', function () {
+    console.info(`[${chalk.green('MQTT')}] Connected to mqtt://${chalk.underline(process.env.MQTT_BROKER)}`)
+    configEvent.emit('start', client)
 })
-player.play('./assets/burglar.mp3', function(err){
-    if (err) throw err
-})*/
+
+client.on('message', mqttHandler.onMessage)
